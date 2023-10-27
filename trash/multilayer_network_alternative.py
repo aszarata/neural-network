@@ -56,7 +56,7 @@ X = np.array([
 y = np.array([[0], [0], [0], [1], [1], [1], [0]])
 
 
-layers = [5, 1]
+layers = [5,10, 1]
 
 weights = [np.random.uniform(low=-1, high=1, size=(layers[i], layers[i + 1])) for i in range(len(layers) - 1)]
 

@@ -8,37 +8,41 @@ class Network:
         self.weights = []
         self.layers = []
 
-    def fit(self, X, y, learning_rate=0.1, epochs=100, activation_function = 'logistic'):
-        
+    def fit(self, X, y, activation_function = 'logistic', learning_rate=0.1, epochs=10000):
         
         activation_function, activation_derivative = self._get_activation_function(activation_function)
-        
-        
-        self._init_weights()
-        L = len(self.layers)
-        
 
-        for epoch in range(epochs):
+        self._init_weights()
+        L = len(self.weights)
+
+        for _ in range(epochs):
             for i in range(len(X)):
                 inputs = list(itertools.accumulate(
                     self.weights,
                     np.dot,
                     initial=X[i]
-                ))  
+                ))  # functional operation instead of append
 
-                net_output = activation_function(inputs[-1]) 
+                net_output = activation_function(inputs[-1])  # single output evaluation
 
                 output_derivative = activation_derivative(inputs[-1])
-                residuum = (y[i] - net_output) 
+                residuum = (y[i] - net_output).reshape(-1, 1)  # reshape column vector to add 2-nd dimension instead of checking type
                 
-                deltas = [np.atleast_2d(output_derivative * residuum)]
+                deltas = output_derivative.T @ residuum
                 
-                for l in range(L - 2, -1, -1):
-                    delta = deltas[-1] @ self.weights[l].T 
-                    deltas.append(activation_derivative(inputs[l]) * delta)  
+                for l in range(L - 2, 0, -1):
+                    delta = self.weights[l + 1].T @ deltas[-1]
+                    deltas.append(activation_derivative(inputs[l]).T @ delta)  # accumulate is very complex here; append vs. insert...
 
-                for layer, input, delta in zip(self.weights[:-1], inputs[1:], reversed(deltas)): 
-                    layer += learning_rate * np.outer(delta, activation_function(input))
+                # deltas = deltas[::-1]
+                
+                # for l in range(L - 1):
+                #     outer = np.outer(inputs[l], deltas[l])
+                #     network[l] += learning_rate * outer
+
+                for layer, input, delta in zip(self.weights[:-1], inputs, reversed(deltas)):  # if you will
+                    layer += learning_rate * np.outer(input, delta)
+
 
     def add_layer(self, size):
         self.layers.append(size)
@@ -60,22 +64,3 @@ class Network:
             return (activation_function_base.identity, activation_function_base.identity_derivative)
         else:
             raise ValueError(f"Invalid activation function type: {type}")
-
-
-X_train = np.array([
-    [0, 1], 
-    [1, 1], 
-    [1, 2], 
-    [4, 0],
-    [13, 2],
-    [12, 5], 
-    [3, 6]])
-y_train = np.array([[1], [2], [3], [4], [15], [17], [9]])
-
-model = Network()
-model.add_layer(X_train.shape[1])
-model.add_layer(4)
-model.add_layer(y_train.shape[1])
-model.fit(X_train, y_train, activation_function='identity', learning_rate=0.3, epochs=10)
-
-print(model.predict(np.array([[3, 6]])))
