@@ -8,7 +8,7 @@ class Network:
         self.weights = []
         self.layers = []
 
-    def fit(self, X, y, learning_rate=0.1, epochs=100, activation_function = 'logistic'):
+    def fit(self, X, y, learning_rate=0.1, epochs=100, activation_function = 'relu'):
         
         
         activation_function, activation_derivative = self._get_activation_function(activation_function)
@@ -58,24 +58,26 @@ class Network:
             return (activation_function_base.logistic, activation_function_base.logistic_derivative)
         if type == 'identity':
             return (activation_function_base.identity, activation_function_base.identity_derivative)
+        if type == 'relu':
+            return (activation_function_base.relu, activation_function_base.relu_derivative)
         else:
             raise ValueError(f"Invalid activation function type: {type}")
 
 
-X_train = np.array([
-    [0, 1], 
-    [1, 1], 
-    [1, 2], 
-    [4, 0],
-    [13, 2],
-    [12, 5], 
-    [3, 6]])
-y_train = np.array([[1], [2], [3], [4], [15], [17], [9]])
+# X_train = np.array([
+#     [0, 1], 
+#     [1, 1], 
+#     [1, 2], 
+#     [4, 0],
+#     [13, 2],
+#     [12, 5], 
+#     [3, 6]])
+# y_train = np.array([[1], [2], [3], [4], [15], [17], [9]])
 
-model = Network()
-model.add_layer(X_train.shape[1])
-model.add_layer(4)
-model.add_layer(y_train.shape[1])
-model.fit(X_train, y_train, activation_function='identity', learning_rate=0.3, epochs=10)
+# model = Network()
+# model.add_layer(X_train.shape[1])
+# model.add_layer(4)
+# model.add_layer(y_train.shape[1])
+# model.fit(X_train, y_train, activation_function='identity', learning_rate=0.3, epochs=10)
 
-print(model.predict(np.array([[3, 6]])))
+# print(model.predict(np.array([[3, 6]])))
