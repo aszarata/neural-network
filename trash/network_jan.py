@@ -15,13 +15,16 @@ class Network:
         self._init_weights()
         L = len(self.weights)
 
-        for _ in range(epochs):
+        y_pred = np.zeros(len(y))
+
+        for epoch in range(epochs):
             for i in range(len(X)):
                 inputs = [X[i]]
                 for layer_weights in self.weights:
                     inputs.append( self.activation_function(np.dot(np.append(inputs[-1], -1), layer_weights)) )
 
                 net_output = self.activation_function(inputs[-1]) 
+                y_pred[i] = net_output
 
                 output_derivative = self.activation_derivative(inputs[-1])
                 residuum = (y[i] - net_output).reshape(-1, 1) 
@@ -32,8 +35,10 @@ class Network:
                     delta = self.weights[l + 1].T @ deltas[-1]
                     deltas.append(self.activation_derivative(inputs[l]).T @ delta)
 
-                for layer, input, delta in zip(self.weights[:-1], inputs, reversed(deltas)): 
-                    layer += learning_rate * np.outer(np.append(input, 1), delta)
+                for w, input, delta in zip(self.weights[:-1], inputs, reversed(deltas)): 
+                    w += learning_rate * np.outer(np.append(input, 1), delta)
+            
+            print(f"Epoch {epoch}: loss = {self.__MSE(y_pred, y)}")
 
 
     def add_layer(self, size):
@@ -62,6 +67,10 @@ class Network:
         else:
             raise ValueError(f"Invalid activation function type: {type}")
         
+    def __MSE(self, y_pred, y_true):
+        return np.mean((y_pred - y_true)**2)
+
+        
 
 
 X_train = np.array([
@@ -77,8 +86,8 @@ y_train = np.array([[1], [2], [3], [4], [15], [17], [9]])
 model = Network()
 model.set_activation_function('relu')
 model.add_layer(X_train.shape[1])
-model.add_layer(4)
+model.add_layer(5)
 model.add_layer(y_train.shape[1])
-model.fit(X_train, y_train, learning_rate=0.3, epochs=10)
+model.fit(X_train, y_train, learning_rate=0.3, epochs=100)
 
 print(model.predict(np.array([[6, 6]])))
