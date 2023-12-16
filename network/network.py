@@ -19,7 +19,8 @@ class Network:
             raise ValueError(f"Invalid activation function type: {type}")
         
     def _MSE(self, y_pred, y_true):
-        return np.mean((y_pred - y_true)**2)
+        loss = np.mean((y_pred.reshape(1, -1) - y_true.reshape(1, -1))**2)
+        return loss
     
 
     def add_layer(self, in_features, out_features, activation_function='logistic'):
@@ -45,9 +46,9 @@ class Network:
                     delta_tmp = layer.calculate_delta(delta_tmp)
                     layer.update_weights(lr=learning_rate)
 
-            if verbose==1:
+            if verbose!=-1 and epoch%10**verbose == 0:
                 y_pred = self.predict(X)
-                print(f"Epoch {epoch}: loss = {self.loss(y_pred=y_pred, y_true=y)}")    
+                print(f"Epoch {epoch}: loss = {self._MSE(y_pred=y_pred, y_true=y)}")    
                 
             
     

@@ -4,6 +4,9 @@ import numpy as np
 def hard_threshold(x):
     return np.where(x > 0, 1, 0)
 
+def hard_threshold_derivative(x):
+    return np.zeros_like(x)
+
 
 # logistic
 def logistic(x):
