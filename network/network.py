@@ -6,7 +6,9 @@ class Network:
 
     def __init__(self):
         self.layers = []
-        self.loss = self._MSE
+        self.loss_fn = self._MSE
+
+        self._early_stopping_patience = None
 
     def _get_activation_function(self, type):
         if type == 'logistic':
@@ -23,19 +25,26 @@ class Network:
         return loss
     
 
-    def add_layer(self, in_features, out_features, activation_function='logistic'):
+    def add_layer(self, in_features, out_features, activation_function='logistic', dropout_prob=None):
         activation_function, activation_derivative = self._get_activation_function(activation_function)
-        self.layers.append(Layer(in_features, out_features, activation_function, activation_derivative))
+        self.layers.append(
+            Layer(in_features, 
+                  out_features, 
+                  activation_function, 
+                  activation_derivative, 
+                  dropout_prob)
+            )
 
-    def fit(self, X, y, learning_rate=0.1, epochs=1000, verbose=-1):
+    def fit(self, X, y, learning_rate=0.1, epochs=1000, verbose=-1, batch_size=None):
 
         for epoch in range(epochs):
-            for i in range(len(X)):
-                inputs = X[i]
+            X_batch, y_batch = self.generate_mini_batch(X=X, y=y, size=batch_size)
+            for i in range(len(X_batch)):
+                inputs = X_batch[i]
                 for layer in self.layers:
                     inputs = layer.train_forward(inputs)
                 
-                outputs = y[i]
+                outputs = y_batch[i]
                 output_layer = layer
 
                 delta_tmp = output_layer.calculate_output_delta(outputs)
@@ -48,7 +57,10 @@ class Network:
 
             if verbose!=-1 and epoch%10**verbose == 0:
                 y_pred = self.predict(X)
-                print(f"Epoch {epoch}: loss = {self._MSE(y_pred=y_pred, y_true=y)}")    
+                print(f"Epoch {epoch}: loss = {self.loss_fn(y_pred=y_pred, y_true=y)}")
+            
+            if self._early_stop(X, y):
+                break
                 
             
     
@@ -59,6 +71,41 @@ class Network:
             y_pred = layer.forward(y_pred)
 
         return y_pred
+    
+    def generate_mini_batch(self, X, y, size):
+        
+        if size==None:
+            return X, y
+
+        start_idx = np.random.randint(0, len(X) - size + 1)
+
+        mini_batch_X = X[start_idx:start_idx + size]
+        mini_batch_y = y[start_idx:start_idx + size]
+
+        return mini_batch_X, mini_batch_y
+    
+    def early_stopping(self, early_stopping_patience):
+        self._early_stopping_patience = early_stopping_patience
+        self.__steps_without_improvement = 0
+        self.__best_val_loss = np.inf
+
+    def _early_stop(self, X, y):
+        if self._early_stopping_patience == None:
+            return False
+        
+        y_pred = self.predict(X)
+        loss = self.loss_fn(y_pred=y_pred, y_true=y)
+        if loss < self.__best_val_loss:
+            self.__best_val_loss = loss
+            self.__steps_without_improvement = 0
+        
+        else:
+            self.__steps_without_improvement += 1
+
+        if self.__steps_without_improvement == self._early_stopping_patience:
+            return True
+        
+        return False
 
     
                 
