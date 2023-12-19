@@ -4,6 +4,7 @@ from layer import Layer
 
 class Network:
 
+    # Init
     def __init__(self):
         self.layers = []
         self.loss_fn = self._MSE
@@ -24,17 +25,26 @@ class Network:
         loss = np.mean((y_pred.reshape(1, -1) - y_true.reshape(1, -1))**2)
         return loss
     
-
-    def add_layer(self, in_features, out_features, activation_function='logistic', dropout_prob=None):
+    # Network building
+    def add_layer(self, 
+                  in_features, 
+                  out_features, 
+                  activation_function='logistic', 
+                  dropout_prob=None,
+                  batch_norm_1d_size=None):
+        
         activation_function, activation_derivative = self._get_activation_function(activation_function)
+        
         self.layers.append(
             Layer(in_features, 
                   out_features, 
                   activation_function, 
                   activation_derivative, 
-                  dropout_prob)
+                  dropout_prob,
+                  batch_norm_1d_size)
             )
 
+    # Training
     def fit(self, X, y, learning_rate=0.1, epochs=1000, verbose=-1, batch_size=None):
 
         for epoch in range(epochs):
@@ -63,7 +73,7 @@ class Network:
                 break
                 
             
-    
+    # Evaluations
     def predict(self, X):
         y_pred = X
 
@@ -72,8 +82,8 @@ class Network:
 
         return y_pred
     
+    # Mini batches
     def generate_mini_batch(self, X, y, size):
-        
         if size==None:
             return X, y
 
@@ -84,6 +94,7 @@ class Network:
 
         return mini_batch_X, mini_batch_y
     
+    # Early stopping
     def early_stopping(self, early_stopping_patience):
         self._early_stopping_patience = early_stopping_patience
         self.__steps_without_improvement = 0
