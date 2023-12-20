@@ -18,6 +18,8 @@ class Network:
             return (activation_function_base.identity, activation_function_base.identity_derivative)
         if type == 'relu':
             return (activation_function_base.relu, activation_function_base.relu_derivative)
+        if type == 'softmax':
+            return (activation_function_base.softmax, activation_function_base.softmax_derivative)
         else:
             raise ValueError(f"Invalid activation function type: {type}")
         
