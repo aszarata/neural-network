@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import expit
 
 # hard threshold
 def hard_threshold(x):
@@ -10,7 +11,7 @@ def hard_threshold_derivative(x):
 
 # logistic
 def logistic(x):
-    return 1 / (1 + np.exp(-x))
+    return expit(x)
 
 def logistic_derivative(x):
     return logistic(x) * (1 - logistic(x))
