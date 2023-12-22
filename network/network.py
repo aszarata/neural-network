@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 import activation_function_base
 from layer import Layer
 
@@ -50,7 +51,7 @@ class Network:
     def fit(self, X, y, learning_rate=0.1, epochs=1000, verbose=-1, batch_size=None):
 
         for epoch in range(epochs):
-            X_batch, y_batch = self.generate_mini_batch(X=X, y=y, size=batch_size)
+            X_batch, y_batch = self._generate_mini_batch(X=X, y=y, size=batch_size)
             for i in range(len(X_batch)):
                 inputs = X_batch[i]
                 for layer in self.layers:
@@ -85,7 +86,7 @@ class Network:
         return y_pred
     
     # Mini batches
-    def generate_mini_batch(self, X, y, size):
+    def _generate_mini_batch(self, X, y, size):
         if size==None:
             return X, y
 
@@ -119,6 +120,17 @@ class Network:
             return True
         
         return False
+    
+    # Save and load model
+    def save(self, filename):
+        with open(filename, 'wb') as file:
+            pickle.dump(self, file)
+
+    @classmethod
+    def load(cls, filename):
+        with open(filename, 'rb') as file:
+            loaded_object = pickle.load(file)
+        return loaded_object
 
     
                 
