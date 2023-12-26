@@ -50,10 +50,10 @@ def update_plot():
 
 def read_input(image):
     pixel_values = image.flatten()
-    X = 255 -np.array(pixel_values)
+    X = np.array(pixel_values)
     y = model.predict(X)
     output = np.unravel_index(np.argmax(y), y.shape)
-    print("prediction: ", output, y)
+    print("prediction: ", output)
 
 while True:
     fig, ax = plt.subplots()

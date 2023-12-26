@@ -11,41 +11,14 @@ class Network:
         self.loss_fn = self._MSE
 
         self._early_stopping_patience = None
-
-    def _get_activation_function(self, type):
-        if type == 'logistic':
-            return (activation_function_base.logistic, activation_function_base.logistic_derivative)
-        if type == 'identity':
-            return (activation_function_base.identity, activation_function_base.identity_derivative)
-        if type == 'relu':
-            return (activation_function_base.relu, activation_function_base.relu_derivative)
-        if type == 'softmax':
-            return (activation_function_base.softmax, activation_function_base.softmax_derivative)
-        else:
-            raise ValueError(f"Invalid activation function type: {type}")
         
     def _MSE(self, y_pred, y_true):
         loss = np.mean((y_pred.reshape(1, -1) - y_true.reshape(1, -1))**2)
         return loss
     
     # Network building
-    def add_layer(self, 
-                  in_features, 
-                  out_features, 
-                  activation_function='logistic', 
-                  dropout_prob=None,
-                  batch_norm_1d_size=None):
-        
-        activation_function, activation_derivative = self._get_activation_function(activation_function)
-        
-        self.layers.append(
-            Layer(in_features, 
-                  out_features, 
-                  activation_function, 
-                  activation_derivative, 
-                  dropout_prob,
-                  batch_norm_1d_size)
-            )
+    def add_layer(self, layer):        
+        self.layers.append(layer)
 
     # Training
     def fit(self, X, y, learning_rate=0.1, epochs=1000, verbose=-1, batch_size=None):

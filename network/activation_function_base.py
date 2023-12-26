@@ -1,6 +1,22 @@
 import numpy as np
 from scipy.special import expit
 
+
+# get activation function
+def get_activation_function(type):
+    if type == 'logistic':
+        return (logistic, logistic_derivative)
+    if type == 'identity':
+        return (identity, identity_derivative)
+    if type == 'relu':
+        return (relu, relu_derivative)
+    if type == 'softmax':
+        return (softmax, softmax_derivative)
+    else:
+        raise ValueError(f"Invalid activation function type: {type}")
+
+
+
 # hard threshold
 def hard_threshold(x):
     return np.where(x > 0, 1, 0)

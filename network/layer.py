@@ -1,19 +1,18 @@
 import numpy as np
-
+import activation_function_base
 
 class Layer:
 
     def __init__(self, 
                  in_features, 
                  out_features, 
-                 activation_function, 
-                 activation_derivative, 
-                 dropout_prob,
-                 batch_norm_1d_size):
+                 activation_function='logistic', 
+                 dropout_prob=None,
+                 batch_norm_1d_size=None):
         
 
         self.weights = np.random.uniform(low=-1, high=1, size=(in_features, out_features))
-        self.activation_function, self.activation_derivative = activation_function, activation_derivative
+        self.activation_function, self.activation_derivative = activation_function_base.get_activation_function(activation_function)
         self.input_links = None
         self.input = None
         self.output = None
