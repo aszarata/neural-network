@@ -11,7 +11,7 @@ class Layer:
                  batch_norm_1d_size=None):
         
 
-        self.weights = np.random.uniform(low=-1, high=1, size=(in_features, out_features))
+        self.weights = np.random.uniform(low=-1, high=1, size=(in_features+1, out_features))
         self.activation_function, self.activation_derivative = activation_function_base.get_activation_function(activation_function)
         self.input_links = None
         self.input = None
@@ -21,11 +21,13 @@ class Layer:
         self.dropout_prob = dropout_prob
         self.batch_norm_1d_size = batch_norm_1d_size
 
+        self.bias = 1
+
     
     # Forward
     def train_forward(self, input_links):
-        self.input_links = input_links
-        self.input = input_links @ self.weights
+        self.input_links = np.append(input_links, self.bias) # bias
+        self.input = self.input_links @ self.weights
 
         self._apply_dropout_mask() # Dropout
         self._apply_batch_norm() # Batch normalisation
@@ -34,6 +36,8 @@ class Layer:
         return self.output
 
     def forward(self, input_links):
+        bias_column = np.full((input_links.shape[0], 1), self.bias)
+        input_links = np.hstack((input_links, bias_column))
         return self.activation_function(input_links @ self.weights)
 
     # Backward
@@ -44,7 +48,7 @@ class Layer:
         return self.calculate_delta_with_weights()
     
     def calculate_delta_with_weights(self):
-        return self.delta @ self.weights.T
+        return self.delta @ self.weights.T[:, :-1]
 
     def calculate_delta(self, last_layer_delta):
         self.delta = np.multiply(self.activation_derivative(self.input), last_layer_delta)
