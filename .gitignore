@@ -1,2 +1,19 @@
+# Python cache files
+**/__pycache__/
 __pycache__/
-training_data/
+
+# Jupyter Notebook checkpoints
+**/.ipynb_checkpoints/
+
+# Compiled Python files
+*.pyc
+
+# Test data
+examples/tests/adult-census-network-test/*.data*
+examples/tests/adult-census-network-test/old.adult.names
+examples/tests/adult-census-network-test/*.test
+examples/tests/adult-census-network-test/Index
+examples/tests/adult-census-network-test/main.ipynb
+examples/tests/adult-census-network-test/old.adult.names
+examples/tests/mnist-dataset-test/*.parquet
+examples/tests/mnist-dataset-test/my_data/*.png
